@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkillBridge — Virtual Prototype</title>
+<style>
+:root {
+  --indigo:#1E1B4B; --violet:#4338CA; --violetL:#6D28D9;
+  --amber:#F59E0B; --amberL:#FEF3C7;
+  --teal:#0D9488; --tealL:#CCFBF1;
+  --rose:#F43F5E; --slate:#1E293B;
+  --muted:#64748B; --white:#FFFFFF;
+  --off:#F8FAFC; --cardBg:#EEF2FF;
+  --border:#E2E8F0; --green:#059669;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(135deg,#1E1B4B 0%,#2d2a6e 50%,#1a1a4e 100%);
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; padding:20px 16px 40px;
+}
+
+/* ── HEADER ── */
+.page-header{
+  width:100%; max-width:480px;
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:16px;
+}
+.brand{ display:flex; align-items:center; gap:8px; }
+.brand-logo{
+  width:36px; height:36px; background:var(--violet);
+  border:2px solid var(--amber); border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:800; color:var(--amber);
+}
+.brand-name{ font-size:20px; font-weight:800; color:#fff; }
+.proto-tag{
+  font-size:10px; background:var(--amber); color:var(--indigo);
+  padding:3px 10px; border-radius:99px; font-weight:700;
+}
+
+/* ── STEP NAV ── */
+.step-nav{
+  display:flex; gap:6px; margin-bottom:14px;
+  width:100%; max-width:480px; flex-wrap:wrap;
+}
+.sn{
+  flex:1; min-width:80px; padding:6px 4px; border-radius:8px;
+  font-size:10px; font-weight:600; cursor:pointer; text-align:center;
+  border:1.5px solid rgba(165,180,252,.35); color:#A5B4FC;
+  transition:all .2s; background:rgba(255,255,255,.04);
+}
+.sn.active{
+  background:var(--amber); color:var(--indigo);
+  border-color:var(--amber); font-weight:700;
+}
+.sn:hover:not(.active){ border-color:#A5B4FC; color:#fff; }
+
+/* ── PHONE FRAME ── */
+.phone{
+  width:100%; max-width:380px;
+  background:#0f0f1a;
+  border-radius:44px;
+  border:3px solid #2d2d4e;
+  box-shadow:
+    0 0 0 1px #1a1a3a,
+    0 30px 80px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  overflow:hidden; position:relative;
+}
+/* notch */
+.notch{
+  width:120px; height:28px;
+  background:#0f0f1a; border-radius:0 0 20px 20px;
+  margin:0 auto; position:relative; z-index:10;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.notch-cam{
+  width:10px; height:10px; border-radius:50%;
+  background:#1a1a2e; border:1px solid #2d2d4e;
+}
+.notch-speaker{
+  width:40px; height:5px; border-radius:99px;
+  background:#1a1a2e;
+}
+/* status bar */
+.status-bar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:4px 20px 0; font-size:11px; font-weight:600; color:#fff;
+  background:var(--indigo);
+}
+.status-icons{ display:flex; gap:4px; align-items:center; font-size:10px; }
+
+/* ── SCREEN ── */
+.screen{ display:none; }
+.screen.active{ display:block; }
+.app-screen{
+  background:var(--off); min-height:680px;
+  animation:fadeUp .3s ease;
+  overflow-y:auto; max-height:680px;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── APP TOP BAR ── */
+.app-bar{
+  background:var(--indigo); padding:12px 18px;
+  display:flex; align-items:center; gap:10px;
+  position:sticky; top:0; z-index:10;
+}
+.app-bar-back{
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:14px; color:#fff;
+  transition:background .2s;
+}
+.app-bar-back:hover{ background:rgba(255,255,255,.22); }
+.app-bar-title{ font-size:16px; font-weight:700; color:#fff; flex:1; }
+.app-bar-sub{ font-size:11px; color:#A5B4FC; }
+.amber-dot{
+  width:8px; height:8px; background:var(--amber);
+  border-radius:50%; flex-shrink:0;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  background:#fff; border-top:1px solid var(--border);
+  display:flex; padding:8px 0 4px;
+}
+.bn{
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  gap:3px; cursor:pointer; padding:4px 0;
+  font-size:9.5px; color:var(--muted); transition:color .2s;
+}
+.bn.active{ color:var(--violet); }
+.bn-icon{ font-size:18px; }
+
+/* ── CONTENT BLOCKS ── */
+.pad{ padding:16px; }
+.pad-sm{ padding:10px 16px; }
+
+/* cards */
+.card{
+  background:#fff; border-radius:14px;
+  border:1px solid var(--border);
+  padding:14px; margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.card-title{
+  font-size:13px; font-weight:700; color:var(--slate);
+  margin-bottom:4px;
+}
+.card-sub{ font-size:11px; color:var(--muted); }
+
+/* hero banner */
+.hero-banner{
+  background:linear-gradient(135deg,var(--indigo),var(--violetL));
+  border-radius:16px; padding:18px; margin-bottom:14px; color:#fff;
+}
+.hero-banner h2{ font-size:17px; font-weight:800; margin-bottom:4px; }
+.hero-banner p{ font-size:11px; color:#C7D2FE; line-height:1.5; }
+
+/* stats row */
+.stats-row{
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:8px; margin-bottom:14px;
+}
+.stat-card{
+  background:#fff; border-radius:12px; padding:12px 8px;
+  text-align:center; border:1px solid var(--border);
+}
+.stat-val{ font-size:18px; font-weight:800; color:var(--violet); }
+.stat-lbl{ font-size:9.5px; color:var(--muted); margin-top:2px; }
+
+/* section label */
+.sec-label{
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.6px; color:var(--muted); margin-bottom:8px;
+}
+
+/* mentor card */
+.mentor-card{
+  background:#fff; border-radius:14px; padding:14px;
+  border:1px solid var(--border); margin-bottom:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  cursor:pointer; transition:all .2s;
+}
+.mentor-card:hover{ border-color:var(--violet); transform:translateY(-1px); }
+.mentor-card.selected{ border-color:var(--violet); background:var(--cardBg); }
+.mentor-header{ display:flex; align-items:flex-start; gap:12px; }
+.mentor-avatar{
+  width:46px; height:46px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:700; flex-shrink:0;
+}
+.mentor-name{ font-size:13.5px; font-weight:700; color:var(--slate); }
+.mentor-role{ font-size:11px; color:var(--muted); margin-top:2px; }
+.tag-row{ display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+.tag{
+  font-size:9.5px; padding:3px 9px; border-radius:99px;
+  font-weight:600;
+}
+.match-bar-wrap{ margin-top:8px; }
+.match-label{
+  display:flex; justify-content:space-between;
+  font-size:10px; color:var(--muted); margin-bottom:3px;
+}
+.match-bar{
+  height:5px; background:var(--border);
+  border-radius:99px; overflow:hidden;
+}
+.match-fill{
+  height:100%; border-radius:99px;
+  background:linear-gradient(90deg,var(--teal),#34D399);
+}
+.ai-badge{
+  font-size:9px; font-weight:700; padding:2px 8px;
+  background:linear-gradient(135deg,var(--violet),var(--violetL));
+  color:#fff; border-radius:99px; margin-left:auto;
+  flex-shrink:0; height:fit-content;
+}
+
+/* slot grid */
+.slot-grid{
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:8px; margin-bottom:14px;
+}
+.slot{
+  padding:10px 6px; border:1.5px solid var(--border);
+  border-radius:10px; text-align:center; cursor:pointer;
+  transition:all .18s; background:#fff;
+}
+.slot:hover:not(.taken){ border-color:var(--violet); }
+.slot.sel{ background:var(--violet); border-color:var(--violet); color:#fff; }
+.slot.taken{ opacity:.4; cursor:not-allowed; background:var(--off); }
+.slot-time{ font-size:12px; font-weight:700; }
+.slot-date{ font-size:10px; margin-top:2px; opacity:.7; }
+
+/* session type chips */
+.sess-chips{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.sess-chip{
+  flex:1; min-width:90px; padding:10px 8px; border-radius:12px;
+  border:1.5px solid var(--border); text-align:center;
+  cursor:pointer; transition:all .18s; background:#fff;
+}
+.sess-chip.sel{ background:var(--cardBg); border-color:var(--violet); }
+.sess-chip .price{ font-size:14px; font-weight:800; color:var(--violet); }
+.sess-chip .stype{ font-size:10px; color:var(--muted); margin-top:2px; }
+
+/* pay methods */
+.pay-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+.pay-opt{
+  padding:12px 6px; border:1.5px solid var(--border);
+  border-radius:12px; text-align:center; cursor:pointer; background:#fff;
+  transition:all .18s;
+}
+.pay-opt.sel{ border-color:var(--violet); background:var(--cardBg); }
+.pay-icon{ font-size:22px; margin-bottom:4px; }
+.pay-lbl{ font-size:10px; font-weight:600; color:var(--muted); }
+
+/* input */
+.inp-group{ margin-bottom:12px; }
+.inp-label{ font-size:11px; font-weight:600; color:var(--slate); margin-bottom:5px; display:block; }
+.inp{
+  width:100%; padding:11px 14px; border:1.5px solid var(--border);
+  border-radius:10px; font-size:13px; color:var(--slate);
+  background:#fff; outline:none; transition:border .2s;
+}
+.inp:focus{ border-color:var(--violet); }
+select.inp{ appearance:none; cursor:pointer; }
+
+/* chip selector */
+.chip-wrap{ display:flex; flex-wrap:wrap; gap:7px; }
+.chip{
+  padding:7px 14px; border-radius:99px; font-size:12px;
+  border:1.5px solid var(--border); cursor:pointer;
+  transition:all .18s; color:var(--muted); background:#fff;
+}
+.chip.sel{ background:var(--cardBg); border-color:var(--violet); color:var(--violet); font-weight:600; }
+
+/* session screen */
+.session-screen{
+  background:var(--indigo); min-height:680px;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:20px; text-align:center;
+}
+.live-badge{
+  display:flex; align-items:center; gap:6px;
+  font-size:12px; font-weight:700; color:#fff; margin-bottom:14px;
+}
+.live-dot{
+  width:8px; height:8px; background:var(--rose); border-radius:50%;
+  animation:pulse 1.2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.timer{ font-size:36px; font-weight:800; color:#fff; letter-spacing:2px; margin-bottom:16px; }
+.video-box{
+  width:100%; background:#0a0a1e; border-radius:16px;
+  border:1px solid rgba(255,255,255,.1); overflow:hidden;
+  margin-bottom:16px; padding:30px 20px;
+}
+.participant{
+  background:rgba(255,255,255,.07); border-radius:12px;
+  padding:12px; display:flex; align-items:center; gap:10px;
+  margin-bottom:10px;
+}
+.p-avatar{
+  width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.p-name{ font-size:13px; font-weight:700; color:#fff; }
+.p-role{ font-size:10px; color:#A5B4FC; }
+.ctrl-row{ display:flex; gap:10px; justify-content:center; margin-top:4px; }
+.ctrl{
+  width:46px; height:46px; border-radius:50%; border:none;
+  background:rgba(255,255,255,.14); color:#fff; font-size:18px;
+  cursor:pointer; transition:all .18s; display:flex;
+  align-items:center; justify-content:center;
+}
+.ctrl:hover{ background:rgba(255,255,255,.25); }
+.ctrl.end{ background:var(--rose); width:56px; height:56px; font-size:20px; }
+
+/* stars */
+.stars{ display:flex; gap:10px; justify-content:center; margin:14px 0; }
+.star{ font-size:32px; cursor:pointer; filter:grayscale(1) opacity(.4); transition:transform .15s; }
+.star.lit{ filter:none; }
+
+/* success */
+.success-box{
+  background:linear-gradient(135deg,var(--teal),#059669);
+  border-radius:16px; padding:20px; text-align:center; color:#fff; margin-bottom:14px;
+}
+.success-icon{ font-size:44px; margin-bottom:8px; }
+.success-box h3{ font-size:17px; font-weight:800; margin-bottom:4px; }
+.success-box p{ font-size:11px; opacity:.88; }
+
+/* info grid */
+.info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.info-item{
+  background:#fff; border-radius:12px; padding:12px;
+  border:1px solid var(--border);
+}
+.info-lbl{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; font-weight:600; }
+.info-val{ font-size:14px; font-weight:700; color:var(--slate); margin-top:4px; }
+
+/* btn */
+.btn-primary{
+  width:100%; padding:14px; border:none; border-radius:12px;
+  background:var(--violet); color:#fff; font-size:14px; font-weight:700;
+  cursor:pointer; transition:all .2s; margin-top:6px;
+  box-shadow:0 4px 14px rgba(67,56,202,.3);
+}
+.btn-primary:hover{ background:var(--violetL); transform:translateY(-1px); }
+.btn-primary:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+.btn-amber{
+  width:100%; padding:14px; border:none; border-radius:12px;
+  background:var(--amber); color:var(--indigo); font-size:14px; font-weight:700;
+  cursor:pointer; transition:all .2s; margin-top:6px;
+}
+
+/* textarea */
+.textarea{
+  width:100%; padding:11px 14px; border:1.5px solid var(--border);
+  border-radius:10px; font-size:12px; resize:vertical; min-height:80px;
+  outline:none; font-family:inherit; color:var(--slate);
+}
+.textarea:focus{ border-color:var(--violet); }
+
+/* price box */
+.price-box{
+  background:var(--cardBg); border:2px solid var(--violet);
+  border-radius:12px; padding:14px; margin-bottom:14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.price-big{ font-size:28px; font-weight:800; color:var(--violet); }
+.price-note{ font-size:10px; color:var(--muted); max-width:160px; line-height:1.4; }
+
+/* ai thinking */
+.ai-think{ text-align:center; padding:40px 20px; }
+.ai-brain{ font-size:50px; animation:float 2s ease-in-out infinite; }
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ai-think h3{ font-size:17px; font-weight:700; color:var(--violet); margin:12px 0 6px; }
+.ai-think p{ font-size:12px; color:var(--muted); }
+.progress-wrap{ max-width:220px; margin:14px auto; height:5px; background:var(--border); border-radius:99px; overflow:hidden; }
+.progress-bar{ height:100%; background:linear-gradient(90deg,var(--violet),var(--teal)); border-radius:99px; animation:fill 2.5s ease forwards; }
+@keyframes fill{from{width:0%}to{width:100%}}
+.ai-status{ font-size:11px; color:var(--violet); font-weight:600; margin-top:8px; }
+
+/* toast */
+#toast{
+  position:fixed; bottom:80px; left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--slate); color:#fff; padding:9px 20px;
+  border-radius:10px; font-size:12px; opacity:0; z-index:999;
+  transition:all .3s; pointer-events:none; white-space:nowrap;
+}
+#toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* legend bottom */
+.page-legend{
+  margin-top:16px; display:flex; flex-wrap:wrap; justify-content:center;
+  gap:8px; width:100%; max-width:480px;
+}
+.leg-item{
+  font-size:10px; color:rgba(255,255,255,.6);
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  padding:5px 12px; border-radius:99px;
+}
+.leg-item b{ color:#F59E0B; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="brand">
+    <div class="brand-logo">SB</div>
+    <span class="brand-name">SkillBridge</span>
+  </div>
+  <span class="proto-tag">VIRTUAL PROTOTYPE</span>
+</div>
+
+<!-- STEP NAV -->
+<div class="step-nav">
+  <div class="sn active" onclick="goTo(0)">① Home</div>
+  <div class="sn" onclick="goTo(1)">② Sign Up</div>
+  <div class="sn" onclick="goTo(2)">③ AI Match</div>
+  <div class="sn" onclick="goTo(3)">④ Book</div>
+  <div class="sn" onclick="goTo(4)">⑤ Session</div>
+  <div class="sn" onclick="goTo(5)">⑥ Rate</div>
+</div>
+
+<!-- PHONE -->
+<div class="phone">
+  <!-- Notch -->
+  <div style="background:var(--indigo);padding-top:8px;">
+    <div class="notch">
+      <div class="notch-cam"></div>
+      <div class="notch-speaker"></div>
+      <div class="notch-cam"></div>
+    </div>
+  </div>
+  <!-- Status Bar -->
+  <div class="status-bar" style="background:var(--indigo);">
+    <span>9:41</span>
+    <div class="status-icons">
+      <span>●●●</span><span>WiFi</span><span>🔋</span>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 0: HOME ══ -->
+  <div class="screen active app-screen" id="sc-0">
+    <div class="app-bar">
+      <div class="amber-dot"></div>
+      <div>
+        <div class="app-bar-title">SkillBridge</div>
+        <div class="app-bar-sub">Good morning, Riya 👋</div>
+      </div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#4338CA;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700;">R</div>
+    </div>
+    <div class="pad">
+      <div class="hero-banner">
+        <h2>Find Your Mentor Today 🚀</h2>
+        <p>Book a verified professional for just Rs99. Choose your language, domain and career goal.</p>
+        <button class="btn-amber" style="margin-top:12px;padding:10px;" onclick="goTo(1)">Get Started →</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val">5K+</div><div class="stat-lbl">Mentors</div></div>
+        <div class="stat-card"><div class="stat-val">Rs99</div><div class="stat-lbl">Starting</div></div>
+        <div class="stat-card"><div class="stat-val">8+</div><div class="stat-lbl">Languages</div></div>
+      </div>
+      <div class="sec-label">Popular Domains</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+        <span class="chip sel" style="cursor:default;">💻 Software</span>
+        <span class="chip" style="cursor:default;">📊 Data Science</span>
+        <span class="chip" style="cursor:default;">💼 MBA Prep</span>
+        <span class="chip" style="cursor:default;">⚖️ UPSC/Law</span>
+        <span class="chip" style="cursor:default;">🎨 Design</span>
+        <span class="chip" style="cursor:default;">🏥 Healthcare</span>
+      </div>
+      <div class="sec-label">Featured Mentors</div>
+      <div class="mentor-card" onclick="goTo(2)" style="cursor:pointer;">
+        <div class="mentor-header">
+          <div class="mentor-avatar" style="background:#EEF2FF;color:#4338CA;">👩‍💻</div>
+          <div style="flex:1">
+            <div class="mentor-name">Preethi Rajan</div>
+            <div class="mentor-role">Senior SWE · Google Bangalore</div>
+          </div>
+          <span class="ai-badge">⭐ 4.9</span>
+        </div>
+        <div class="tag-row">
+          <span class="tag" style="background:#EEF2FF;color:#4338CA;">Python & ML</span>
+          <span class="tag" style="background:#FEF3C7;color:#92400E;">FAANG Prep</span>
+          <span class="tag" style="background:#FFF1F2;color:#BE123C;">Hindi</span>
+        </div>
+      </div>
+      <div class="mentor-card" onclick="goTo(2)" style="cursor:pointer;">
+        <div class="mentor-header">
+          <div class="mentor-avatar" style="background:#CCFBF1;color:#0D9488;">👨‍💼</div>
+          <div style="flex:1">
+            <div class="mentor-name">Aditya Kumar</div>
+            <div class="mentor-role">Product Manager · Swiggy · IIM-C</div>
+          </div>
+          <span class="ai-badge">⭐ 4.8</span>
+        </div>
+        <div class="tag-row">
+          <span class="tag" style="background:#CCFBF1;color:#0D9488;">Product Mgmt</span>
+          <span class="tag" style="background:#FEF3C7;color:#92400E;">MBA Prep</span>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bn active"><div class="bn-icon">🏠</div>Home</div>
+      <div class="bn" onclick="goTo(2)"><div class="bn-icon">🔍</div>Explore</div>
+      <div class="bn" onclick="goTo(3)"><div class="bn-icon">📅</div>Bookings</div>
+      <div class="bn" onclick="showTeam()"><div class="bn-icon">👥</div>Team</div>
+    </div>
+  </div>
+
+  <!-- TEAM MODAL -->
+  <div id="team-modal" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(30,27,75,.92);z-index:50;overflow-y:auto;border-radius:41px;">
+    <div style="padding:20px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:700;color:#fff;">Our Founding Team</div>
+        <button onclick="document.getElementById('team-modal').style.display='none'" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;">✕</button>
+      </div>
+      <div style="font-size:11px;color:#A5B4FC;margin-bottom:16px;">IIM Jammu · ENVP Business Plan</div>
+      ${[
+        {role:"CEO",name:"N Prudhvi Raj",desc:"Strategy & Vision",col:"#F43F5E"},
+        {role:"CTO",name:"Mukund Kumar",desc:"Technology & Product Dev",col:"#6D28D9"},
+        {role:"CMO",name:"Khushi Sharma",desc:"Marketing & Brand Growth",col:"#F59E0B"},
+        {role:"CPO",name:"Rishabh Yadav",desc:"Product Design & UX",col:"#0D9488"},
+        {role:"CFO",name:"Sabavath Sanjay",desc:"Finance & Operations",col:"#4338CA"},
+      ].map(t=>`
+        <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+          <div style="width:42px;height:42px;border-radius:50%;background:${t.col};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;">${t.role}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#fff;">${t.name}</div>
+            <div style="font-size:11px;color:#A5B4FC;margin-top:2px;">${t.desc}</div>
+          </div>
+        </div>`).join("")}
+      <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">📱 Scan to Open App</div>
+        <div style="font-size:10px;color:#A5B4FC;margin-bottom:12px;">Scan QR code to visit SkillBridge on any device</div>
+        <canvas id="qr-canvas" style="border-radius:8px;background:#fff;padding:8px;"></canvas>
+        <div style="font-size:10px;color:#A5B4FC;margin-top:10px;" id="qr-url-label">yourusername.github.io/skillbridge</div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <input id="qr-url-input" placeholder="Paste your GitHub Pages URL" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:11px;outline:none;" oninput="updateQR(this.value)"/>
+        </div>
+        <div style="font-size:10px;color:#A5B4FC;margin-top:6px;">Paste your link above to update the QR code</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 1: SIGN UP ══ -->
+  <div class="screen app-screen" id="sc-1">
+    <div class="app-bar">
+      <div class="app-bar-back" onclick="goTo(0)">←</div>
+      <div>
+        <div class="app-bar-title">Create Your Profile</div>
+        <div class="app-bar-sub">Step 1 of 5</div>
+      </div>
+    </div>
+    <div class="pad">
+      <div class="card" style="background:var(--cardBg);border-color:var(--violet);margin-bottom:16px;">
+        <div style="font-size:12px;color:var(--violet);font-weight:600;">🤖 AI will use your profile to find the best mentor match</div>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Full Name</label>
+        <input class="inp" id="inp-name" placeholder="e.g. Riya Sharma" oninput="chk1()"/>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">College / Institution</label>
+        <input class="inp" id="inp-college" placeholder="e.g. GLA University, Mathura" oninput="chk1()"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="inp-group">
+          <label class="inp-label">Year of Study</label>
+          <select class="inp" id="inp-year" onchange="chk1()">
+            <option value="">Select</option>
+            <option>1st Year</option><option>2nd Year</option>
+            <option>3rd Year</option><option>Final Year</option>
+            <option>Post-Graduate</option>
+          </select>
+        </div>
+        <div class="inp-group">
+          <label class="inp-label">Language</label>
+          <select class="inp" id="inp-lang" onchange="chk1()">
+            <option value="">Select</option>
+            <option>English</option><option>Hindi</option>
+            <option>Tamil</option><option>Telugu</option>
+            <option>Kannada</option><option>Bengali</option>
+          </select>
+        </div>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Career Domain</label>
+        <div class="chip-wrap" id="domain-chips">
+          <span class="chip" onclick="pickChip(this,'domain')">💻 Software Eng</span>
+          <span class="chip" onclick="pickChip(this,'domain')">📊 Data Science</span>
+          <span class="chip" onclick="pickChip(this,'domain')">💼 MBA & Mgmt</span>
+          <span class="chip" onclick="pickChip(this,'domain')">⚖️ Law / UPSC</span>
+          <span class="chip" onclick="pickChip(this,'domain')">🎨 Design & UX</span>
+        </div>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Primary Goal</label>
+        <div class="chip-wrap" id="goal-chips">
+          <span class="chip" onclick="pickChip(this,'goal')">🎯 Get into top company</span>
+          <span class="chip" onclick="pickChip(this,'goal')">📄 Crack interview</span>
+          <span class="chip" onclick="pickChip(this,'goal')">🛣️ Plan career path</span>
+          <span class="chip" onclick="pickChip(this,'goal')">📚 Higher studies</span>
+          <span class="chip" onclick="pickChip(this,'goal')">🚀 Build a startup</span>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-next1" disabled onclick="goTo(2)">Find My Mentor with AI →</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 2: AI MATCH ══ -->
+  <div class="screen app-screen" id="sc-2">
+    <div class="app-bar">
+      <div class="app-bar-back" onclick="goTo(1)">←</div>
+      <div>
+        <div class="app-bar-title">AI Mentor Match</div>
+        <div class="app-bar-sub">Powered by NLP engine</div>
+      </div>
+      <span style="font-size:18px;">🤖</span>
+    </div>
+    <div id="ai-thinking" class="ai-think">
+      <div class="ai-brain">🧠</div>
+      <h3>SkillBridge AI is thinking...</h3>
+      <p>Analysing your career goals, domain,<br/>language and mentor availability</p>
+      <div class="progress-wrap"><div class="progress-bar" id="ai-prog"></div></div>
+      <div class="ai-status" id="ai-status">Scanning 5,000+ mentor profiles...</div>
+    </div>
+    <div id="mentor-results" class="pad" style="display:none;">
+      <div class="card" style="background:var(--cardBg);border-color:var(--violet);margin-bottom:14px;">
+        <div style="font-size:11px;color:var(--violet);font-weight:600;">🎯 Top 3 AI-Matched Mentors for you</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Sorted by match score based on your profile</div>
+      </div>
+      <div id="mentor-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 3: BOOKING ══ -->
+  <div class="screen app-screen" id="sc-3">
+    <div class="app-bar">
+      <div class="app-bar-back" onclick="goTo(2)">←</div>
+      <div>
+        <div class="app-bar-title" id="book-mentor-name">Book Session</div>
+        <div class="app-bar-sub">AI Match ✓</div>
+      </div>
+      <span style="font-size:18px;">📅</span>
+    </div>
+    <div class="pad">
+      <div class="sec-label">Session Type</div>
+      <div class="sess-chips">
+        <div class="sess-chip sel" id="st-30" onclick="selSess(30,'Rs149','st-30')">
+          <div class="price">Rs149</div>
+          <div class="stype">30 Min<br/>Career Talk</div>
+        </div>
+        <div class="sess-chip" id="st-60" onclick="selSess(60,'Rs299','st-60')">
+          <div class="price">Rs299</div>
+          <div class="stype">60 Min<br/>Deep Dive</div>
+        </div>
+        <div class="sess-chip" id="st-mock" onclick="selSess('Mock','Rs499','st-mock')">
+          <div class="price">Rs499</div>
+          <div class="stype">Mock<br/>Interview</div>
+        </div>
+      </div>
+      <div class="sec-label">Available Slots</div>
+      <div class="slot-grid" id="slot-grid"></div>
+      <div class="sec-label">Payment</div>
+      <div class="price-box">
+        <div>
+          <div class="price-big" id="price-disp">Rs149</div>
+          <div class="price-note">30-min session · Secure · Cancel 2 hrs before</div>
+        </div>
+        <div style="font-size:28px;">🔒</div>
+      </div>
+      <div class="pay-grid">
+        <div class="pay-opt sel" id="py-upi" onclick="selPay('upi')">
+          <div class="pay-icon">📱</div>
+          <div class="pay-lbl">UPI</div>
+        </div>
+        <div class="pay-opt" id="py-card" onclick="selPay('card')">
+          <div class="pay-icon">💳</div>
+          <div class="pay-lbl">Card</div>
+        </div>
+        <div class="pay-opt" id="py-wallet" onclick="selPay('wallet')">
+          <div class="pay-icon">👛</div>
+          <div class="pay-lbl">Wallet</div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-pay" disabled onclick="confirmPay()">Confirm & Pay →</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 4: LIVE SESSION ══ -->
+  <div class="screen" id="sc-4">
+    <div class="session-screen">
+      <div class="live-badge">
+        <div class="live-dot"></div> LIVE SESSION
+      </div>
+      <div class="timer" id="timer">29:59</div>
+      <div class="participant">
+        <div class="p-avatar" style="background:#4338CA;">👩</div>
+        <div style="flex:1;text-align:left;">
+          <div class="p-name" id="sess-student">You</div>
+          <div class="p-role">Career Guidance</div>
+        </div>
+        <span style="font-size:18px;">🎙️</span>
+      </div>
+      <div class="participant">
+        <div class="p-avatar" style="background:#0D9488;">👩‍💻</div>
+        <div style="flex:1;text-align:left;">
+          <div class="p-name" id="sess-mentor">Preethi Rajan</div>
+          <div class="p-role">Senior SWE · Google</div>
+        </div>
+        <span style="font-size:18px;">🎙️</span>
+      </div>
+      <div class="video-box">
+        <div style="text-align:center;color:rgba(255,255,255,.5);">
+          <div style="font-size:48px;margin-bottom:8px;">🎥</div>
+          <div style="font-size:12px;">Video in progress</div>
+          <div style="font-size:10px;margin-top:4px;opacity:.6;">Notes · Screen Share · Resources</div>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <button class="ctrl" onclick="tog(this,'🎙️','🔇')" title="Mute">🎙️</button>
+        <button class="ctrl" onclick="tog(this,'📹','🚫')" title="Camera">📹</button>
+        <button class="ctrl" onclick="tog(this,'📝','📝')" title="Notes">📝</button>
+        <button class="ctrl" onclick="tog(this,'🖥️','🖥️')" title="Share">🖥️</button>
+        <button class="ctrl end" onclick="endSess()" title="End">📵</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 5: RATING ══ -->
+  <div class="screen app-screen" id="sc-5">
+    <div class="app-bar">
+      <div class="amber-dot"></div>
+      <div>
+        <div class="app-bar-title">Session Complete!</div>
+        <div class="app-bar-sub">Rate your experience</div>
+      </div>
+      <span style="font-size:18px;">🎉</span>
+    </div>
+    <div class="pad">
+      <div class="success-box">
+        <div class="success-icon">🎉</div>
+        <h3>Great Session!</h3>
+        <p>Your session has been saved. +Rs50 credits added to your wallet.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-lbl">Mentor</div><div class="info-val" id="rec-mentor">Preethi Rajan</div></div>
+        <div class="info-item"><div class="info-lbl">Duration</div><div class="info-val" id="rec-dur">30 mins</div></div>
+        <div class="info-item"><div class="info-lbl">Credits Earned</div><div class="info-val" style="color:var(--teal);">+Rs50 🎁</div></div>
+        <div class="info-item"><div class="info-lbl">Recording</div><div class="info-val">24 hrs</div></div>
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;color:var(--slate);margin-bottom:4px;">Rate Your Mentor</div>
+        <div style="font-size:11px;color:var(--muted);">Your feedback improves AI matching for everyone</div>
+        <div class="stars" id="stars">
+          <span class="star" onclick="rateStar(1)">⭐</span>
+          <span class="star" onclick="rateStar(2)">⭐</span>
+          <span class="star" onclick="rateStar(3)">⭐</span>
+          <span class="star" onclick="rateStar(4)">⭐</span>
+          <span class="star" onclick="rateStar(5)">⭐</span>
+        </div>
+        <div id="star-lbl" style="text-align:center;font-size:12px;color:var(--violet);font-weight:600;min-height:18px;margin-bottom:10px;"></div>
+        <textarea class="textarea" placeholder="What did you learn? Any suggestions?"></textarea>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+          <span style="font-size:10px;color:var(--muted);">Quick tags:</span>
+          <span class="chip" onclick="this.classList.toggle('sel')" style="font-size:10px;padding:4px 10px;">Very helpful</span>
+          <span class="chip" onclick="this.classList.toggle('sel')" style="font-size:10px;padding:4px 10px;">Knowledgeable</span>
+          <span class="chip" onclick="this.classList.toggle('sel')" style="font-size:10px;padding:4px 10px;">Would rebook</span>
+        </div>
+      </div>
+      <div class="card" style="background:var(--cardBg);border-color:var(--violet);">
+        <div style="font-size:12px;font-weight:700;color:var(--violet);margin-bottom:6px;">🤖 AI Recommends Next</div>
+        <div style="font-size:11px;color:var(--slate);line-height:1.5;">
+          Based on this session, we recommend a <b>Mock Interview</b> with <b>Aditya Kumar</b> (96% match) — Rs499.
+          <span style="color:var(--violet);font-weight:700;cursor:pointer;" onclick="goTo(2)"> Book Now →</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="submitRating()">Submit & Go Home ✓</button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<!-- LEGEND -->
+<div class="page-legend">
+  <div class="leg-item"><b>①</b> Home Dashboard</div>
+  <div class="leg-item"><b>②</b> Student Sign Up</div>
+  <div class="leg-item"><b>③</b> AI Mentor Match</div>
+  <div class="leg-item"><b>④</b> Book + Pay</div>
+  <div class="leg-item"><b>⑤</b> Live Session</div>
+  <div class="leg-item"><b>⑥</b> Rate + Review</div>
+</div>
+<div style="margin-top:10px;font-size:10px;color:rgba(255,255,255,.4);text-align:center;">
+  SkillBridge Virtual Prototype  |  ENVP Business Plan  |  IIM Jammu
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── DATA
+const MENTORS = [
+  { name:"Preethi Rajan",  role:"Senior SWE · Google Bangalore",   emo:"👩‍💻", bg:"#EEF2FF", tc:"#4338CA", match:97,
+    tags:[{t:"Python & ML",bg:"#EEF2FF",tc:"#4338CA"},{t:"FAANG Prep",bg:"#FEF3C7",tc:"#92400E"},{t:"Hindi",bg:"#FFF1F2",tc:"#BE123C"}],
+    rating:"4.9", sessions:"312" },
+  { name:"Aditya Kumar",   role:"PM · Swiggy · IIM Calcutta",       emo:"👨‍💼", bg:"#CCFBF1", tc:"#0D9488", match:92,
+    tags:[{t:"Product Mgmt",bg:"#CCFBF1",tc:"#0D9488"},{t:"MBA Prep",bg:"#FEF3C7",tc:"#92400E"},{t:"Hindi",bg:"#FFF1F2",tc:"#BE123C"}],
+    rating:"4.8", sessions:"198" },
+  { name:"Divya Menon",    role:"Data Scientist · Flipkart · IIT-M", emo:"👩‍🔬", bg:"#FEF3C7", tc:"#92400E", match:88,
+    tags:[{t:"Data Science",bg:"#FEF3C7",tc:"#92400E"},{t:"NLP & AI",bg:"#EEF2FF",tc:"#4338CA"},{t:"Tamil",bg:"#FFF1F2",tc:"#BE123C"}],
+    rating:"4.9", sessions:"251" },
+];
+
+const SLOTS = [
+  {d:"Today",    t:"10:00 AM", ok:true},  {d:"Today",    t:"12:30 PM", ok:false},
+  {d:"Today",    t:"03:00 PM", ok:true},  {d:"Today",    t:"05:30 PM", ok:true},
+  {d:"Tomorrow", t:"09:00 AM", ok:true},  {d:"Tomorrow", t:"11:00 AM", ok:false},
+  {d:"Tomorrow", t:"02:00 PM", ok:true},  {d:"Wed",      t:"10:00 AM", ok:true},
+  {d:"Wed",      t:"01:00 PM", ok:true},
+];
+
+let st = { mentor:null, slot:null, pay:"upi", sess:30, price:"Rs149", star:0, timerRef:null, timerSecs:1799 };
+
+// ── NAVIGATION
+function goTo(n) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".sn").forEach((s,i) => s.classList.toggle("active", i===n));
+  document.getElementById("sc-"+n).classList.add("active");
+  if (n===2) startAI();
+  if (n===3) renderBook();
+  if (n===4) startSess();
+}
+
+// ── SIGN UP
+function pickChip(el, grp) {
+  document.querySelectorAll("#"+grp+"-chips .chip").forEach(c=>c.classList.remove("sel"));
+  el.classList.add("sel");
+  chk1();
+}
+function chk1() {
+  const n=document.getElementById("inp-name").value.trim();
+  const c=document.getElementById("inp-college").value.trim();
+  const y=document.getElementById("inp-year").value;
+  const l=document.getElementById("inp-lang").value;
+  const dom=document.querySelector("#domain-chips .sel");
+  const goal=document.querySelector("#goal-chips .sel");
+  const ok = n&&c&&y&&l&&dom&&goal;
+  document.getElementById("btn-next1").disabled=!ok;
+  if(n) st.studentName=n;
+  if(l) st.lang=l;
+}
+
+// ── AI MATCH
+function startAI() {
+  document.getElementById("ai-thinking").style.display="block";
+  document.getElementById("mentor-results").style.display="none";
+  // reset progress bar
+  const pb=document.getElementById("ai-prog");
+  pb.style.animation="none"; pb.offsetHeight; pb.style.animation="fill 2.5s ease forwards";
+  const msgs=["Scanning 5,000+ mentor profiles...","Applying NLP career-goal analysis...","Filtering by domain & language...","Ranking by compatibility score...","Top matches found! ✨"];
+  let i=0;
+  const iv=setInterval(()=>{
+    i++;
+    if(i<msgs.length) document.getElementById("ai-status").textContent=msgs[i];
+    else clearInterval(iv);
+  },500);
+  setTimeout(()=>{
+    document.getElementById("ai-thinking").style.display="none";
+    document.getElementById("mentor-results").style.display="block";
+    renderMentors();
+  },2600);
+}
+function renderMentors() {
+  document.getElementById("mentor-list").innerHTML = MENTORS.map((m,i)=>`
+    <div class="mentor-card ${st.mentor===i?"selected":""}" id="mc-${i}" onclick="selMentor(${i})">
+      <div class="mentor-header">
+        <div class="mentor-avatar" style="background:${m.bg};color:${m.tc};">${m.emo}</div>
+        <div style="flex:1;">
+          <div class="mentor-name">${m.name}</div>
+          <div class="mentor-role">${m.role}</div>
+        </div>
+        <span class="ai-badge">🤖 AI Match</span>
+      </div>
+      <div class="tag-row">
+        ${m.tags.map(t=>`<span class="tag" style="background:${t.bg};color:${t.tc};">${t.t}</span>`).join("")}
+      </div>
+      <div class="match-bar-wrap">
+        <div class="match-label"><span>AI Match Score</span><span style="color:var(--teal);font-weight:700;">${m.match}%</span></div>
+        <div class="match-bar"><div class="match-fill" style="width:${m.match}%"></div></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+        <div style="text-align:center;"><div style="font-size:14px;font-weight:700;color:var(--violet);">⭐ ${m.rating}</div><div style="font-size:9px;color:var(--muted);">Rating</div></div>
+        <div style="text-align:center;"><div style="font-size:14px;font-weight:700;color:var(--violet);">${m.sessions}</div><div style="font-size:9px;color:var(--muted);">Sessions</div></div>
+        <div style="text-align:center;"><div style="font-size:14px;font-weight:700;color:var(--violet);">Rs149</div><div style="font-size:9px;color:var(--muted);">30 min</div></div>
+        <button onclick="event.stopPropagation();selMentor(${i});setTimeout(()=>goTo(3),200);" style="margin-left:auto;padding:7px 14px;background:var(--violet);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">Book →</button>
+      </div>
+    </div>
+  `).join("");
+}
+function selMentor(i) {
+  st.mentor=i;
+  document.querySelectorAll(".mentor-card").forEach(c=>c.classList.remove("selected"));
+  document.getElementById("mc-"+i).classList.add("selected");
+  const m=MENTORS[i];
+  document.getElementById("book-mentor-name").textContent=m.name;
+  document.getElementById("sess-mentor").textContent=m.name;
+  document.getElementById("rec-mentor").textContent=m.name;
+  toast("Mentor selected! Pick a time slot →");
+}
+
+// ── BOOKING
+function renderBook() {
+  const grid=document.getElementById("slot-grid");
+  grid.innerHTML=SLOTS.map((sl,i)=>`
+    <div class="slot ${sl.ok?"":"taken"}" id="sl-${i}" onclick="${sl.ok?`selSlot(${i})`:""}" >
+      <div class="slot-time">${sl.t}</div>
+      <div class="slot-date">${sl.d}</div>
+    </div>`).join("");
+}
+function selSlot(i) {
+  document.querySelectorAll(".slot:not(.taken)").forEach(s=>s.classList.remove("sel"));
+  document.getElementById("sl-"+i).classList.add("sel");
+  st.slot=SLOTS[i]; chkPay();
+}
+function selSess(dur,price,id) {
+  ["st-30","st-60","st-mock"].forEach(x=>document.getElementById(x).classList.remove("sel"));
+  document.getElementById(id).classList.add("sel");
+  st.sess=dur; st.price=price;
+  document.getElementById("price-disp").textContent=price;
+  chkPay();
+}
+function selPay(m) {
+  ["py-upi","py-card","py-wallet"].forEach(x=>document.getElementById(x).classList.remove("sel"));
+  document.getElementById("py-"+m).classList.add("sel");
+  st.pay=m;
+}
+function chkPay() { document.getElementById("btn-pay").disabled=!st.slot; }
+function confirmPay() {
+  toast("Payment successful ✓ Session confirmed!");
+  setTimeout(()=>goTo(4), 700);
+}
+
+// ── SESSION TIMER
+function startSess() {
+  clearInterval(st.timerRef);
+  st.timerSecs=1799;
+  updTimer();
+  st.timerRef=setInterval(()=>{
+    st.timerSecs--;
+    if(st.timerSecs<=0){ clearInterval(st.timerRef); endSess(); return; }
+    updTimer();
+  },1000);
+  if(st.studentName) document.getElementById("sess-student").textContent=st.studentName+" (You)";
+}
+function updTimer() {
+  const m=String(Math.floor(st.timerSecs/60)).padStart(2,"0");
+  const s=String(st.timerSecs%60).padStart(2,"0");
+  const el=document.getElementById("timer");
+  if(el) el.textContent=m+":"+s;
+}
+function tog(btn,on,off){ btn.textContent=btn.textContent===on?off:on; }
+function endSess() {
+  clearInterval(st.timerRef);
+  const elapsed=1799-st.timerSecs;
+  document.getElementById("rec-dur").textContent=Math.max(1,Math.round(elapsed/60))+" mins";
+  toast("Session ended! Please rate your experience.");
+  setTimeout(()=>goTo(5), 600);
+}
+
+// ── RATING
+function rateStar(n) {
+  st.star=n;
+  document.querySelectorAll(".star").forEach((s,i)=>s.classList.toggle("lit",i<n));
+  const lbls=["","Poor","Fair","Good","Very Good","Excellent! 🎉"];
+  document.getElementById("star-lbl").textContent=lbls[n]||"";
+}
+function submitRating() {
+  if(!st.star){ toast("Please rate your session first!"); return; }
+  toast("Thank you! AI has improved your next match ✨");
+  setTimeout(()=>goTo(0),1100);
+}
+
+// ── TOAST
+function toast(msg) {
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2600);
+}
+
+function showTeam() {
+  document.getElementById('team-modal').style.display='block';
+  setTimeout(()=>generateQR('https://yourusername.github.io/skillbridge'), 300);
+}
+
+function generateQR(url) {
+  const canvas = document.getElementById('qr-canvas');
+  if (!canvas) return;
+  if (typeof QRCode !== 'undefined') {
+    QRCode.toCanvas(canvas, url, {
+      width: 160, margin: 1,
+      color: { dark:'#1E1B4B', light:'#FFFFFF' }
+    }, function(err){});
+  }
+}
+
+function updateQR(val) {
+  const url = val.trim() || 'https://yourusername.github.io/skillbridge';
+  const lbl = document.getElementById('qr-url-label');
+  if(lbl) lbl.textContent = url.replace('https://','');
+  generateQR(url);
+}
+
+// Init booking slots
+renderBook();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</body>
+</html>
